@@ -1,4 +1,4 @@
-from search_phone import get_phone
+from rag.search_phone import get_phone
 
 question = input("Ask: ")
 
