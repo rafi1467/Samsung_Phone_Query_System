@@ -1,62 +1,49 @@
-# Samsung Phone Query and Review System
+# Samsung Phone Query and Review System (RAG + LLM)
 
 ## Project Overview
 
-This project is an intelligent Samsung smartphone information system that collects phone specifications from GSMArena, stores them in MySQL, and provides query and review services through a FastAPI API.
+Samsung Phone Query and Review System is a Retrieval-Augmented Generation (RAG) based chatbot that provides information about Samsung smartphones.
 
-## Features
+The system collects Samsung phone specifications from GSMArena, stores them in a MySQL database, retrieves relevant information based on user queries, and uses a Large Language Model (LLM) to generate natural language responses.
 
-### Data Scraping
-- Scrapes Samsung smartphone specifications from GSMArena
-- Collects:
-  - Phone Name
-  - Display Size
-  - Chipset
-  - Storage
-  - Battery
-  - Charging Information
+Users can:
 
-### Database
-- MySQL Database
-- Structured phone information storage
-
-### Query System
-- Search Samsung phones by name
-- Retrieve specifications instantly
-
-### Multi-Agent Review System
-- Specification Retrieval Agent
-- Review Generation Agent
-
-### REST API
-- FastAPI based API
-- JSON responses
+- Search Samsung phone specifications
+- Ask questions about Samsung phones
+- Compare two Samsung phones
+- Retrieve phone details through REST APIs
+- Get AI-generated responses using an LLM
 
 ---
 
-## Project Structure
+## Features
 
-```text
-Samsung_Phone_Query_System/
-│
-├── scraper/
-│   └── scrape.py
-│
-├── database/
-│   └── load_to_mysql.py
-│
-├── rag/
-│   ├── db.py
-│   ├── search_phone.py
-│   └── chatbot.py
-│
-├── agents/
-│   └── review_agent.py
-│
-├── api.py
-├── requirements.txt
-└── README.md
-```
+### Data Collection
+- Scrapes Samsung smartphone specifications from GSMArena
+- Automatically collects phone details
+
+### Database Storage
+- Stores phone data in MySQL
+- Structured and queryable database
+
+### RAG Pipeline
+- Retrieves relevant phone information from MySQL
+- Uses retrieved context for answer generation
+
+### Conversational Chatbot
+- Answers Samsung phone-related questions
+- Supports natural language queries
+
+### Phone Comparison
+- Compare specifications between two Samsung phones
+
+### API Integration
+- FastAPI-based REST API
+- JSON responses
+
+### LLM Integration
+- Hugging Face Inference API
+- AI-generated responses
 
 ---
 
@@ -65,9 +52,47 @@ Samsung_Phone_Query_System/
 - Python
 - BeautifulSoup
 - Requests
+- Pandas
 - MySQL
 - FastAPI
 - Uvicorn
+- Hugging Face
+- RapidFuzz
+
+---
+
+## Project Structure
+
+```text
+Samsung_Phone_Query_System/
+│
+├── data/
+│   └── samsung_phones.csv
+│
+├── scraper/
+│   └── scrape.py
+│
+├── database/
+│   ├── create_table.py
+│   └── load_to_mysql.py
+│
+├── models/
+│   ├── request_models.py
+│   └── compare_request.py
+│
+├── rag/
+│   ├── db.py
+│   ├── llm.py
+│   ├── search_phone.py
+│   ├── rag_chatbot.py
+│   ├── compare.py
+│   ├── smart_queries.py
+│   └── test_rag.py
+│
+├── api.py
+├── requirements.txt
+└── README.md
+```
 
 ---
 
@@ -76,20 +101,32 @@ Samsung_Phone_Query_System/
 Create Database:
 
 ```sql
-CREATE DATABASE samsung_phones;
+CREATE DATABASE samsung_phone_db;
 ```
 
 Create Table:
 
 ```sql
 CREATE TABLE phones (
+
     id INT AUTO_INCREMENT PRIMARY KEY,
+
     name VARCHAR(255),
+
     display_size TEXT,
+
     chipset TEXT,
+
     storage TEXT,
+
     battery TEXT,
-    charging TEXT
+
+    charging TEXT,
+
+    camera TEXT,
+
+    price TEXT
+
 );
 ```
 
@@ -97,31 +134,33 @@ CREATE TABLE phones (
 
 ## Installation
 
-Clone Repository
+### Clone Repository
 
 ```bash
-git clone YOUR_GITHUB_LINK
+git clone https://github.com/rafi1467/Samsung_Phone_Query_System.git
 ```
 
-Go to Project Folder
+### Go to Project Directory
 
 ```bash
 cd Samsung_Phone_Query_System
 ```
 
-Create Virtual Environment
+### Create Virtual Environment
 
 ```bash
 python -m venv venv
 ```
 
-Activate Virtual Environment
+### Activate Virtual Environment
+
+Windows:
 
 ```bash
 venv\Scripts\activate
 ```
 
-Install Dependencies
+### Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -129,7 +168,7 @@ pip install -r requirements.txt
 
 ---
 
-## Run Scraper
+## Run Data Scraper
 
 ```bash
 python scraper/scrape.py
@@ -137,7 +176,7 @@ python scraper/scrape.py
 
 ---
 
-## Load Data to MySQL
+## Load Data into MySQL
 
 ```bash
 python database/load_to_mysql.py
@@ -145,10 +184,44 @@ python database/load_to_mysql.py
 
 ---
 
-## Run API
+## Run Chatbot
+
+```bash
+python -m rag.test_rag
+```
+
+Example:
+
+```text
+Ask: What is the battery of Samsung Galaxy S24 Ultra?
+
+Ask: Tell me about Samsung Galaxy S23 Ultra
+
+Ask: Which Samsung phone is cheapest?
+```
+
+---
+
+## Run FastAPI Server
 
 ```bash
 uvicorn api:app --reload
+```
+
+Server URL:
+
+```text
+http://127.0.0.1:8000
+```
+
+---
+
+## API Documentation
+
+Open Swagger UI:
+
+```text
+http://127.0.0.1:8000/docs
 ```
 
 ---
@@ -161,46 +234,108 @@ uvicorn api:app --reload
 GET /
 ```
 
-### Get Phone Information
-
-```http
-GET /phone/S24
-```
-
-### Generate Review
-
-```http
-GET /review/S24
-```
-
----
-
-## API Documentation
-
-Open:
-
-```text
-http://127.0.0.1:8000/docs
-```
-
----
-
-## Sample Output
+Response:
 
 ```json
 {
-  "name": "Samsung Galaxy S24 Ultra",
-  "battery": "Li-Ion 5000 mAh",
-  "chipset": "Snapdragon 8 Gen 3"
+  "message": "Samsung Phone Query API Running"
 }
 ```
 
 ---
 
+### Ask Question
+
+```http
+POST /ask
+```
+
+Request:
+
+```json
+{
+  "question": "What is the battery of Samsung Galaxy S24 Ultra?"
+}
+```
+
+Response:
+
+```json
+{
+  "question": "What is the battery of Samsung Galaxy S24 Ultra?",
+  "answer": "The Samsung Galaxy S24 Ultra has a 5000 mAh battery."
+}
+```
+
+---
+
+### Compare Phones
+
+```http
+POST /compare
+```
+
+Request:
+
+```json
+{
+  "phone1": "Samsung Galaxy S24 Ultra",
+  "phone2": "Samsung Galaxy S23 Ultra"
+}
+```
+
+Response:
+
+```json
+{
+  "phone1": "Samsung Galaxy S24 Ultra",
+  "phone2": "Samsung Galaxy S23 Ultra",
+  "comparison": "Comparison result generated by LLM"
+}
+```
+
+---
+
+## Sample Queries
+
+```text
+What is the battery of Samsung Galaxy S24 Ultra?
+
+Tell me about Samsung Galaxy A55
+
+What camera does Samsung Galaxy S23 Ultra have?
+
+Compare Samsung Galaxy S24 Ultra and Samsung Galaxy S23 Ultra
+
+Which Samsung phone is cheapest?
+
+Which Samsung phone has the best battery life?
+```
+
+---
+
+## Future Improvements
+
+- FAISS Vector Database Integration
+- Sentence Transformer Embeddings
+- Advanced Semantic Search
+- Multi-brand Smartphone Support
+- Web-based User Interface
+- Voice-based Query System
+
+---
+
 ## Author
 
-Riajul Haque Rafi
+**Riajul Haque Rafi**
 
 B.Sc. in Computer Science and Engineering
 
 Daffodil International University
+
+GitHub:
+https://github.com/rafi1467
+
+LinkedIn:
+https://www.linkedin.com/in/riajul-haque-rafi/
+

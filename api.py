@@ -1,54 +1,45 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
 
-from rag.search_phone import get_phone
+from models.request_models import QuestionRequest
+from models.compare_request import CompareRequest
+
 from rag.rag_chatbot import chatbot
-from rag.compare_phone import compare_phones
+from rag.compare import compare_phones
 
-app = FastAPI()
+app = FastAPI(
+    title="Samsung Phone Query API"
+)
 
-
-class Question(BaseModel):
-    question: str
-
-class CompareRequest(BaseModel):
-    phone1: str
-    phone2: str
 
 @app.get("/")
 def home():
-    return {"message": "Samsung Phone Query API Running"}
 
-
-@app.get("/phone/{phone_name}")
-def phone_details(phone_name: str):
-
-    phone = get_phone(phone_name)
-
-    if phone:
-        return phone
-
-    return {"error": "Phone not found"}
+    return {
+        "message": "Samsung Phone Query API Running"
+    }
 
 
 @app.post("/ask")
-def ask_question(data: Question):
+def ask_question(request: QuestionRequest):
 
-    answer = chatbot(data.question)
+    answer = chatbot(request.question)
 
     return {
-        "question": data.question,
+        "question": request.question,
         "answer": answer
     }
 
+
 @app.post("/compare")
-def compare(data: CompareRequest):
+def compare(request: CompareRequest):
 
     result = compare_phones(
-        data.phone1,
-        data.phone2
+        request.phone1,
+        request.phone2
     )
 
     return {
+        "phone1": request.phone1,
+        "phone2": request.phone2,
         "comparison": result
     }
