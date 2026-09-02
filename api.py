@@ -1,8 +1,19 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
+
 from rag.search_phone import get_phone
+from rag.rag_chatbot import chatbot
+from rag.compare_phone import compare_phones
 
 app = FastAPI()
 
+
+class Question(BaseModel):
+    question: str
+
+class CompareRequest(BaseModel):
+    phone1: str
+    phone2: str
 
 @app.get("/")
 def home():
@@ -20,40 +31,24 @@ def phone_details(phone_name: str):
     return {"error": "Phone not found"}
 
 
-@app.get("/review/{phone_name}")
-def generate_review(phone_name: str):
+@app.post("/ask")
+def ask_question(data: Question):
 
-    phone = get_phone(phone_name)
-
-    if not phone:
-        return {"error": "Phone not found"}
-
-    review = f"""
-Samsung Phone Review
-
-Model: {phone['name']}
-
-Display:
-{phone['display_size']}
-
-Performance:
-Powered by {phone['chipset']} which delivers strong performance for daily use, multitasking, and gaming.
-
-Storage:
-{phone['storage']}
-
-Battery:
-{phone['battery']}
-
-Charging:
-{phone['charging']}
-
-Overall Verdict:
-{phone['name']} is a premium Samsung smartphone with excellent display quality,
-strong performance, good battery life, and fast charging capabilities.
-"""
+    answer = chatbot(data.question)
 
     return {
-        "phone": phone["name"],
-        "review": review
+        "question": data.question,
+        "answer": answer
+    }
+
+@app.post("/compare")
+def compare(data: CompareRequest):
+
+    result = compare_phones(
+        data.phone1,
+        data.phone2
+    )
+
+    return {
+        "comparison": result
     }

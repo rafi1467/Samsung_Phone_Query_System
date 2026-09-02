@@ -67,7 +67,9 @@ for url in phone_urls:
             "chipset": specs.get("Chipset", ""),
             "storage": specs.get("Internal", ""),
             "battery": specs.get("Type", ""),
-            "charging": specs.get("Charging", "")
+            "charging": specs.get("Charging", ""),
+            "camera": specs.get("Camera", ""),
+            "price": specs.get("Price", "")
         }
 
         phones.append(phone_data)
