@@ -1,4 +1,4 @@
-# Samsung Phone Query and Review System (RAG + LLM)
+# Samsung Phone Query and Review System 
 
 ## Project Overview
 
@@ -337,5 +337,5 @@ GitHub:
 https://github.com/rafi1467
 
 LinkedIn:
-https://www.linkedin.com/in/riajul-haque-rafi/
+https://www.linkedin.com/in/riajul-haque-rafi-b43ba4363/
 
