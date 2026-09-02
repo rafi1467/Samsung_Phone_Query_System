@@ -1,22 +1,52 @@
 from rag.db import get_connection
 
+
 def get_phone(phone_name):
+
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
 
-    query = """
+    sql = """
     SELECT *
     FROM phones
-    WHERE name LIKE %s
+    WHERE LOWER(name)=LOWER(%s)
+    LIMIT 1
     """
 
-    cursor.execute(query, (f"%{phone_name}%",))
-    result = cursor.fetchone()
+    cursor.execute(sql, (phone_name,))
+    phone = cursor.fetchone()
 
+    cursor.close()
     conn.close()
 
-    return result
+    return phone
 
 
-# phone = get_phone("S24")
-# print(phone)
+def get_all_phone_names():
+
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT name FROM phones")
+
+    phones = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return [p["name"] for p in phones]
+
+
+def get_all_phones():
+
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM phones")
+
+    phones = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return phones

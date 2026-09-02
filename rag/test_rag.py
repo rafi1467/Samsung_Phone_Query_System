@@ -2,11 +2,11 @@ from rag.rag_chatbot import chatbot
 
 while True:
 
-    q = input("Ask: ")
+    question = input("Ask: ")
 
-    if q == "exit":
+    if question.lower() == "exit":
         break
 
-    print()
-    print(chatbot(q))
-    print()
+    answer = chatbot(question)
+
+    print("\n" + answer + "\n")

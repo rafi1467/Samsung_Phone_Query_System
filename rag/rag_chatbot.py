@@ -1,4 +1,10 @@
-from rag.search_phone import get_phone
+from rapidfuzz import process
+
+from rag.search_phone import (
+    get_phone,
+    get_all_phone_names
+)
+
 from rag.llm import ask_llm
 
 
@@ -6,17 +12,45 @@ def chatbot(question):
 
     question_lower = question.lower()
 
-    if "s24" in question_lower:
-        phone = get_phone("S24")
+    phone = None
 
-    elif "s23" in question_lower:
-        phone = get_phone("S23")
+    all_phones = get_all_phone_names()
 
-    elif "s22" in question_lower:
-        phone = get_phone("S22")
+    # Exact and Alias Matching
+    for p in all_phones:
 
-    else:
-        return "Phone not found"
+        aliases = [
+            p.lower(),
+            p.lower().replace("samsung ", ""),
+            p.lower().replace("samsung galaxy ", "")
+        ]
+
+        for alias in aliases:
+
+            if alias in question_lower:
+
+                phone = get_phone(p)
+                break
+
+        if phone:
+            break
+
+    # Fallback Fuzzy Matching
+    if not phone:
+
+        best_match = process.extractOne(
+            question,
+            all_phones
+        )
+
+        if best_match and best_match[1] > 70:
+
+            phone = get_phone(best_match[0])
+
+    if not phone:
+        return "Phone not found in database."
+
+    print(f"Matched Phone: {phone['name']}")
 
     context = f"""
     Name: {phone['name']}
@@ -30,7 +64,9 @@ def chatbot(question):
     """
 
     prompt = f"""
-    Answer only using the phone information below.
+    You are a Samsung phone assistant.
+
+    Answer ONLY using the information provided below.
 
     Phone Information:
     {context}
